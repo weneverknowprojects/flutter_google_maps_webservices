@@ -17,7 +17,7 @@ final places = GoogleMapsPlaces(
 Future<void> main() async {
   var sessionToken = 'xyzabc_1234';
   var details = await places.getDetailsByPlaceId(
-    "ChIJUzLLSlAA2C0RuS9lzZgX1yU",
+    "PLACE_ID",
     sessionToken: sessionToken,
   );
 
