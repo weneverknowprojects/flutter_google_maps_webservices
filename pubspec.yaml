@@ -3,6 +3,7 @@ description: Google maps web services for flutter (Geocoding, Places, Directions
 version: 1.0.0
 repository: https://github.com/dev-juju/flutter_google_maps_webservices
 homepage: https://github.com/dev-juju/flutter_google_maps_webservices
+publish_to: none
 
 environment:
   sdk: ^3.7.2
