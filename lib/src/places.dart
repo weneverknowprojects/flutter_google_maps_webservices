@@ -9,7 +9,7 @@ import 'utils.dart';
 
 part 'places.g.dart';
 
-const _placesUrl = '/place';
+const _placesUrl = '/places';
 const _nearbySearchUrl = '/nearbysearch/json';
 const _textSearchUrl = '/textsearch/json';
 const _detailsSearchUrl = '/details/json';
@@ -25,12 +25,12 @@ class GoogleMapsPlaces extends GoogleWebService {
     Client? httpClient,
     Map<String, String>? apiHeaders,
   }) : super(
-          apiKey: apiKey,
-          baseUrl: baseUrl,
-          apiPath: _placesUrl,
-          httpClient: httpClient,
-          apiHeaders: apiHeaders,
-        );
+         apiKey: apiKey,
+         baseUrl: baseUrl,
+         apiPath: _placesUrl,
+         httpClient: httpClient,
+         apiHeaders: apiHeaders,
+       );
 
   Future<PlacesSearchResponse> searchNearbyWithRadius(
     Location location,
@@ -123,7 +123,10 @@ class GoogleMapsPlaces extends GoogleWebService {
       language: language,
       region: region,
     );
-    return _decodeDetailsResponse(await doGet(url, headers: apiHeaders));
+    print("url $url headers $apiHeaders");
+    final response = await doGet(url, headers: apiHeaders);
+    print("response $response ${response.body} ${response.statusCode}");
+    return _decodeDetailsResponse(response);
   }
 
   Future<PlacesDetailsResponse> getDetailsByReference(
@@ -167,6 +170,7 @@ class GoogleMapsPlaces extends GoogleWebService {
       strictbounds: strictbounds,
       region: region,
     );
+    print("buildAutocompleteUrl $url");
     return _decodeAutocompleteResponse(await doGet(url, headers: apiHeaders));
   }
 
@@ -201,7 +205,8 @@ class GoogleMapsPlaces extends GoogleWebService {
   }) {
     if (radius != null && rankby != null) {
       throw ArgumentError(
-          "'rankby' must not be included if 'radius' is specified.");
+        "'rankby' must not be included if 'radius' is specified.",
+      );
     }
 
     if (rankby == 'distance' &&
@@ -209,7 +214,8 @@ class GoogleMapsPlaces extends GoogleWebService {
         type == null &&
         name == null) {
       throw ArgumentError(
-          "If 'rankby=distance' is specified, then one or more of 'keyword', 'name', or 'type' is required.");
+        "If 'rankby=distance' is specified, then one or more of 'keyword', 'name', or 'type' is required.",
+      );
     }
 
     final params = <String, String>{};
@@ -258,10 +264,7 @@ class GoogleMapsPlaces extends GoogleWebService {
       params['key'] = apiKey!;
     }
     return url
-        .replace(
-          path: '${url.path}$_nearbySearchUrl',
-          queryParameters: params,
-        )
+        .replace(path: '${url.path}$_nearbySearchUrl', queryParameters: params)
         .toString();
   }
 
@@ -277,9 +280,7 @@ class GoogleMapsPlaces extends GoogleWebService {
     String? language,
     String? region,
   }) {
-    final params = <String, String>{
-      'query': query,
-    };
+    final params = <String, String>{'query': query};
 
     if (minprice != null) {
       params['minprice'] = minprice.index.toString();
@@ -322,10 +323,7 @@ class GoogleMapsPlaces extends GoogleWebService {
     }
 
     return url
-        .replace(
-          path: '${url.path}$_textSearchUrl',
-          queryParameters: params,
-        )
+        .replace(path: '${url.path}$_textSearchUrl', queryParameters: params)
         .toString();
   }
 
@@ -370,13 +368,8 @@ class GoogleMapsPlaces extends GoogleWebService {
     if (sessionToken != null) {
       params['sessiontoken'] = sessionToken;
     }
-
-    return url
-        .replace(
-          path: '${url.path}$_detailsSearchUrl',
-          queryParameters: params,
-        )
-        .toString();
+    print(' places url ${url.path}');
+    return url.replace(path: '${url.path}/$placeId').toString();
   }
 
   String buildAutocompleteUrl({
@@ -392,9 +385,7 @@ class GoogleMapsPlaces extends GoogleWebService {
     bool strictbounds = false,
     String? region,
   }) {
-    final params = <String, String>{
-      'input': input,
-    };
+    final params = <String, String>{'input': input};
 
     if (language != null) {
       params['language'] = language;
@@ -441,10 +432,7 @@ class GoogleMapsPlaces extends GoogleWebService {
     }
 
     return url
-        .replace(
-          path: '${url.path}$_autocompleteUrl',
-          queryParameters: params,
-        )
+        .replace(path: '${url.path}$_autocompleteUrl', queryParameters: params)
         .toString();
   }
 
@@ -455,9 +443,7 @@ class GoogleMapsPlaces extends GoogleWebService {
     num? radius,
     String? language,
   }) {
-    final params = <String, String>{
-      'input': input,
-    };
+    final params = <String, String>{'input': input};
 
     if (language != null) {
       params['language'] = language;
@@ -496,9 +482,7 @@ class GoogleMapsPlaces extends GoogleWebService {
       throw ArgumentError("You must supply 'maxWidth' or 'maxHeight'");
     }
 
-    final params = <String, String>{
-      'photoreference': photoReference,
-    };
+    final params = <String, String>{'photoreference': photoReference};
 
     if (maxWidth != null) {
       params['maxwidth'] = maxWidth.toString();
@@ -513,10 +497,7 @@ class GoogleMapsPlaces extends GoogleWebService {
     }
 
     return url
-        .replace(
-          path: '${url.path}$_photoUrl',
-          queryParameters: params,
-        )
+        .replace(path: '${url.path}$_photoUrl', queryParameters: params)
         .toString();
   }
 
@@ -828,10 +809,7 @@ class PlacesDetailsResponse extends GoogleResponseStatus {
     String? errorMessage,
     required this.result,
     required this.htmlAttributions,
-  }) : super(
-          status: status,
-          errorMessage: errorMessage,
-        );
+  }) : super(status: status, errorMessage: errorMessage);
 
   factory PlacesDetailsResponse.fromJson(Map<String, dynamic> json) =>
       _$PlacesDetailsResponseFromJson(json);
@@ -884,10 +862,7 @@ class PlacesAutocompleteResponse extends GoogleResponseStatus {
     required String status,
     String? errorMessage,
     required this.predictions,
-  }) : super(
-          status: status,
-          errorMessage: errorMessage,
-        );
+  }) : super(status: status, errorMessage: errorMessage);
 
   factory PlacesAutocompleteResponse.fromJson(Map<String, dynamic> json) =>
       _$PlacesAutocompleteResponseFromJson(json);
@@ -939,10 +914,7 @@ class Term {
   final num offset;
   final String value;
 
-  Term({
-    required this.offset,
-    required this.value,
-  });
+  Term({required this.offset, required this.value});
 
   factory Term.fromJson(Map<String, dynamic> json) => _$TermFromJson(json);
   Map<String, dynamic> toJson() => _$TermToJson(this);
@@ -964,10 +936,7 @@ class MatchedSubstring {
   final num offset;
   final num length;
 
-  MatchedSubstring({
-    required this.offset,
-    required this.length,
-  });
+  MatchedSubstring({required this.offset, required this.length});
 
   factory MatchedSubstring.fromJson(Map<String, dynamic> json) =>
       _$MatchedSubstringFromJson(json);
