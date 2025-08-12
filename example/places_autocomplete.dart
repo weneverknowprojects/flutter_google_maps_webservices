@@ -4,10 +4,28 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter_google_maps_webservices/places.dart';
 
-final places = GoogleMapsPlaces(apiKey: Platform.environment['API_KEY']);
+final places = GoogleMapsPlaces(
+  apiKey: "API_KEY",
+  baseUrl: "https://places.googleapis.com/v1",
+  apiPath: "/places",
+  apiHeaders: {
+    'Content-Type': 'application/json',
+    'X-Goog-Api-Key': "API_KEY", // Correct header name
+  },
+);
 
 Future<void> main() async {
   var sessionToken = 'xyzabc_1234';
+  var details = await places.getDetailsByPlaceId(
+    "ChIJUzLLSlAA2C0RuS9lzZgX1yU",
+    sessionToken: sessionToken,
+  );
+
+  print('\nDetails :');
+  print(details.result.formattedAddress);
+  print(details.result.formattedPhoneNumber);
+  print(details.result.url);
+  return;
   var res = await places.autocomplete('Amoeba', sessionToken: sessionToken);
 
   if (res.isOkay) {

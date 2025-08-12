@@ -9,7 +9,7 @@ import 'utils.dart';
 
 part 'places.g.dart';
 
-const _placesUrl = '/places';
+const _placesUrl = '/place';
 const _nearbySearchUrl = '/nearbysearch/json';
 const _textSearchUrl = '/textsearch/json';
 const _detailsSearchUrl = '/details/json';
@@ -24,10 +24,11 @@ class GoogleMapsPlaces extends GoogleWebService {
     String? baseUrl,
     Client? httpClient,
     Map<String, String>? apiHeaders,
+    String? apiPath,
   }) : super(
          apiKey: apiKey,
          baseUrl: baseUrl,
-         apiPath: _placesUrl,
+         apiPath: apiPath ?? _placesUrl,
          httpClient: httpClient,
          apiHeaders: apiHeaders,
        );
@@ -116,7 +117,7 @@ class GoogleMapsPlaces extends GoogleWebService {
     String? language,
     String? region,
   }) async {
-    final url = buildDetailsUrl(
+    final url = buildNewDetailsUrl(
       placeId: placeId,
       sessionToken: sessionToken,
       fields: fields,
@@ -328,6 +329,53 @@ class GoogleMapsPlaces extends GoogleWebService {
   }
 
   String buildDetailsUrl({
+    String? placeId,
+    String? reference,
+    String? sessionToken,
+    String? language,
+    List<String> fields = const [],
+    String? region,
+  }) {
+    if (placeId != null && reference != null) {
+      throw ArgumentError("You must supply either 'placeid' or 'reference'");
+    }
+
+    final params = <String, String>{};
+
+    if (placeId != null) {
+      params['placeid'] = placeId;
+    }
+
+    if (reference != null) {
+      params['reference'] = reference;
+    }
+
+    if (language != null) {
+      params['language'] = language;
+    }
+
+    if (region != null) {
+      params['region'] = region;
+    }
+
+    if (fields.isNotEmpty) {
+      params['fields'] = fields.join(',');
+    }
+
+    if (apiKey != null) {
+      params['key'] = apiKey!;
+    }
+
+    if (sessionToken != null) {
+      params['sessiontoken'] = sessionToken;
+    }
+    print(' places url ${url.path}');
+    return url
+        .replace(path: '${url.path}$_detailsSearchUrl', queryParameters: params)
+        .toString();
+  }
+
+  String buildNewDetailsUrl({
     String? placeId,
     String? reference,
     String? sessionToken,
