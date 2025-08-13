@@ -417,7 +417,9 @@ class GoogleMapsPlaces extends GoogleWebService {
       params['sessiontoken'] = sessionToken;
     }
     print(' places url ${url.path}');
-    return url.replace(path: '${url.path}/$placeId').toString();
+    return url
+        .replace(path: '${url.path}/$placeId', queryParameters: params)
+        .toString();
   }
 
   String buildAutocompleteUrl({
